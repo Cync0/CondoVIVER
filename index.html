@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestão do Condomínio</title>
+  
+  <!-- Estilos e Fontes Externas -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- TOAST DE NOTIFICAÇÃO SUPERIOR -->
+  <div id="toast-box" class="toast-box">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <i class="fa-solid fa-bell toast-icon"></i>
+      <span id="toast-text">Notificação do sistema</span>
+    </div>
+    <button id="btn-close-toast" type="button" class="btn-close-toast">&times;</button>
+  </div>
+
+  <!-- CABEÇALHO DA APLICAÇÃO -->
+  <header id="main-header" class="main-header" style="display: none;">
+    <div class="header-left">
+      <h2 id="screen-title"><i class="fa-solid fa-newspaper"></i> Mural de Notícias</h2>
+    </div>
+    <div class="header-right">
+      <button id="btn-ir-perfil" type="button" class="header-icon-btn" title="Meu Perfil">
+        <i class="fa-solid fa-user-circle"></i>
+      </button>
+      <button id="btn-push-notif" type="button" class="header-icon-btn" title="Notificações">
+        <i class="fa-solid fa-bell"></i>
+        <span id="notif-count" class="badge">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTEÚDO PRINCIPAL (TELAS) -->
+  <main class="container">
+
+    <!-- TELA 0: LOGIN DO MORADOR (Acesso Admin Oculto na Logo - 6 Cliques) -->
+    <section id="screen-login" class="screen active">
+      <div class="card login-card">
+        <!-- ÁREA RESTRITA: Clique 6 vezes no Logo para alternar o modo Admin -->
+        <div class="login-logo-wrapper" id="logo-clickable" title="Clique 6x para modo Síndico">
+          <img id="login-logo-img" class="logo-img" style="display: none;" alt="Logo Condomínio">
+          <i id="login-logo-icon" class="fa-solid fa-building-user logo-icon"></i>
+        </div>
+        
+        <h2 id="login-condo-title">CondoVIVER</h2>
+        <p class="subtitle" id="login-subtitle">Acesso exclusivo para Moradores</p>
+
+        <!-- Form de Login Único -->
+        <form id="form-login">
+          <div class="form-group">
+            <label for="login-email" id="login-label-user">E-mail ou Usuário</label>
+            <input type="email" id="login-email" class="form-control" value="morador@condoviver.com" required>
+          </div>
+          <div class="form-group">
+            <label for="login-senha">Senha</label>
+            <input type="password" id="login-senha" class="form-control" value="123456" required>
+          </div>
+          <button type="submit" id="btn-submit-login" class="btn-primary w-100">
+            <i class="fa-solid fa-right-to-bracket"></i> Entrar como Morador
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- TELA 1: MURAL DE NOTÍCIAS -->
+    <section id="screen-mural" class="screen">
+      <div id="mural-container">
+        <!-- Renderizado via JS -->
+      </div>
+    </section>
+
+    <!-- TELA 2: MANUTENÇÃO & CHAMADOS -->
+    <section id="screen-chamados" class="screen">
+      <div class="card">
+        <div class="card-title-row">
+          <h3><i class="fa-solid fa-plus-circle" style="color: #2563eb;"></i> Abrir Novo Chamado</h3>
+        </div>
+        <div class="form-group">
+          <label for="chamado-loc">Local / Problema</label>
+          <input type="text" id="chamado-loc" class="form-control" placeholder="Ex: Lâmpada queimada na garagem">
+        </div>
+        <div class="form-group">
+          <label for="chamado-desc">Descrição do Problema</label>
+          <textarea id="chamado-desc" class="form-control" rows="2" placeholder="Detalhes do chamado..."></textarea>
+        </div>
+        <button id="btn-abrir-chamado" type="button" class="btn-primary w-100">
+          <i class="fa-solid fa-paper-plane"></i> Enviar Chamado
+        </button>
+      </div>
+
+      <h3 class="section-subtitle"><i class="fa-solid fa-list-check"></i> Seus Chamados Recentes</h3>
+      <div id="chamados-lista-morador">
+        <!-- Renderizado via JS -->
+      </div>
+    </section>
+
+    <!-- TELA 3: RESERVA DE ESPAÇOS -->
+    <section id="screen-reservas" class="screen">
+      <div class="card">
+        <div class="card-title-row">
+          <h3><i class="fa-solid fa-calendar-plus" style="color: #2563eb;"></i> Nova Reserva</h3>
+        </div>
+        <div class="form-group">
+          <label for="reserva-espaco-select">Selecione o Espaço</label>
+          <select id="reserva-espaco-select" class="form-control">
+            <!-- Renderizado via JS -->
+          </select>
+        </div>
+
+        <div id="espaco-info-box" class="info-alert-box">
+          <!-- Detalhes do espaço via JS -->
+        </div>
+
+        <!-- LEGENDA DO CALENDÁRIO -->
+        <div class="cal-legend">
+          <div class="legend-item"><span class="legend-color status-green"></span> Verde - Datas Disponíveis</div>
+          <div class="legend-item"><span class="legend-color status-orange"></span> Laranja - Aguardando Pagamento</div>
+          <div class="legend-item"><span class="legend-color status-gray"></span> Cinza - Reservado</div>
+        </div>
+
+        <div class="form-group">
+          <label>Selecione a Data no Calendário</label>
+          
+          <!-- CALENDÁRIO DINÂMICO -->
+          <div class="cal-controls">
+            <button type="button" id="btn-cal-prev" class="cal-nav-btn"><i class="fa-solid fa-chevron-left"></i></button>
+            <div id="cal-header-title" class="cal-header">Mês Ano</div>
+            <button type="button" id="btn-cal-next" class="cal-nav-btn"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+
+          <div class="cal-grid">
+            <span class="cal-day-head">D</span><span class="cal-day-head">S</span><span class="cal-day-head">T</span>
+            <span class="cal-day-head">Q</span><span class="cal-day-head">Q</span><span class="cal-day-head">S</span><span class="cal-day-head">S</span>
+          </div>
+          <div id="cal-days-container" class="cal-grid">
+            <!-- Gerado Dinamicamente pelo JS -->
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 10px;">
+          <label for="reserva-data-input">Data Selecionada</label>
+          <input type="text" id="reserva-data-input" class="form-control" readonly style="background: #f1f5f9; font-weight: bold;">
+        </div>
+
+        <button id="btn-solicitar-reserva" type="button" class="btn-primary w-100">
+          <i class="fa-solid fa-paper-plane"></i> Solicitar Reserva
+        </button>
+      </div>
+
+      <h3 class="section-subtitle"><i class="fa-solid fa-clock-rotate-left"></i> Minhas Reservas</h3>
+      <div id="minhas-reservas-lista">
+        <!-- Renderizado via JS -->
+      </div>
+    </section>
+
+    <!-- TELA 4: ENCOMENDAS MORADOR -->
+    <section id="screen-encomendas" class="screen">
+      <div class="card">
+        <div class="card-title-row">
+          <h3><i class="fa-solid fa-box" style="color: #2563eb;"></i> Minhas Encomendas Pendentes</h3>
+        </div>
+        <p style="font-size: 11px; color: #64748b; margin-bottom: 10px;">
+          Pacotes aguardando retirada na portaria vinculados à sua conta.
+        </p>
+        <div id="encomendas-morador-lista">
+          <!-- Renderizado via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TELA 5: REGRAS & DOCUMENTOS -->
+    <section id="screen-regras" class="screen">
+      <div class="card">
+        <div class="card-title-row">
+          <h3><i class="fa-solid fa-gavel" style="color: #2563eb;"></i> Regras do Condomínio</h3>
+        </div>
+        <div id="regras-lista">
+          <!-- Renderizado via JS -->
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 12px;">
+        <div class="card-title-row">
+          <h3><i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i> Documentos & Atas</h3>
+        </div>
+        <div id="documentos-lista">
+          <!-- Renderizado via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TELA 6: MEU PERFIL -->
+    <section id="screen-perfil" class="screen">
+      <div class="card profile-card">
+        <div class="profile-avatar-wrapper">
+          <div id="prof-avatar-box" class="profile-avatar-circle">
+            <i id="prof-icon" class="fa-solid fa-user"></i>
+            <img id="prof-foto-img" style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="Foto Perfil">
+          </div>
+          <label for="prof-foto-input" class="btn-change-photo" title="Alterar Foto">
+            <i class="fa-solid fa-camera"></i>
+          </label>
+          <input type="file" id="prof-foto-input" accept="image/*" style="display: none;">
+        </div>
+
+        <span id="prof-id-display" class="id-badge">ID: CND-1082</span>
+        <h3 id="prof-unidade-display" style="margin-top: 4px; font-size: 14px; color: #475569;">Bloco A - Apt 102</h3>
+
+        <form style="margin-top: 15px; text-align: left;">
+          <div class="form-group">
+            <label for="prof-nome">Nome Completo</label>
+            <input type="text" id="prof-nome" class="form-control" value="Carlos Eduardo Silva">
+          </div>
+          <div class="form-group">
+            <label for="prof-telefone">Telefone / WhatsApp</label>
+            <input type="text" id="prof-telefone" class="form-control" value="(91) 98765-4321">
+          </div>
+          <div class="form-group">
+            <label for="prof-email">E-mail</label>
+            <input type="email" id="prof-email" class="form-control" value="morador@condoviver.com">
+          </div>
+          <button id="btn-salvar-perfil" type="button" class="btn-primary w-100" style="margin-top: 10px;">
+            <i class="fa-solid fa-floppy-disk"></i> Salvar Alterações
+          </button>
+          <button id="btn-logout" type="button" class="btn-danger w-100" style="margin-top: 8px;">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Sair da Conta
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- TELA 7: PAINEL ADMINISTRATIVO -->
+    <section id="screen-admin" class="screen">
+      <div class="card">
+        <div class="tab-buttons admin-tabs">
+          <button id="adm-tab-config" class="tab-btn active" type="button">Condomínio</button>
+          <button id="adm-tab-moradores" class="tab-btn" type="button">Moradores</button>
+          <button id="adm-tab-mural" class="tab-btn" type="button">Mural</button>
+          <button id="adm-tab-espacos" class="tab-btn" type="button">Espaços</button>
+          <button id="adm-tab-baixas" class="tab-btn" type="button">Reservas</button>
+          <button id="adm-tab-chamados" class="tab-btn" type="button">Chamados</button>
+          <button id="adm-tab-encomendas" class="tab-btn" type="button">Portaria</button>
+          <button id="adm-tab-notificacoes" class="tab-btn" type="button">Disparar Notificação</button>
+          <button id="adm-tab-regras" class="tab-btn" type="button">Regras/Doc</button>
+        </div>
+
+        <div id="adm-sec-config" class="adm-section" style="display: block;">
+          <h4><i class="fa-solid fa-sliders"></i> Dados Gerais do Condomínio</h4>
+          <div class="form-group">
+            <label for="adm-condo-nome">Nome do Condomínio</label>
+            <input type="text" id="adm-condo-nome" class="form-control" value="CondoVIVER">
+          </div>
+          <div class="form-group">
+            <label for="adm-condo-tipo">Tipo de Habitação</label>
+            <select id="adm-condo-tipo" class="form-control">
+              <option value="Apartamentos">Apartamentos (Prédio / Torres)</option>
+              <option value="Casas">Casas (Condomínio Fechado)</option>
+              <option value="Loteamento">Loteamento / Terrenos</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label id="adm-label-blocos" for="adm-condo-blocos">Blocos / Torres do Prédio (separados por vírgula)</label>
+            <input type="text" id="adm-condo-blocos" class="form-control" value="Bloco A, Bloco B, Bloco C">
+          </div>
+          <div class="form-group">
+            <label for="adm-condo-logo-input">Logo do Condomínio</label>
+            <input type="file" id="adm-condo-logo-input" class="form-control" accept="image/*">
+          </div>
+          <button id="btn-salvar-config" type="button" class="btn-primary w-100">
+            <i class="fa-solid fa-check"></i> Salvar Configurações
+          </button>
+        </div>
+
+        <div id="adm-sec-moradores" class="adm-section" style="display: none;">
+          <h4><i class="fa-solid fa-user-plus"></i> Cadastrar Morador</h4>
+          <form id="form-cad-morador">
+            <div class="form-group">
+              <label for="cad-morador-nome">Nome Completo</label>
+              <input type="text" id="cad-morador-nome" class="form-control" required placeholder="Ex: Maria das Dores">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div class="form-group">
+                <label id="label-cad-bloco" for="cad-morador-bloco">Bloco / Torre</label>
+                <select id="cad-morador-bloco" class="form-control">
+                  <!-- JS -->
+                </select>
+              </div>
+              <div class="form-group">
+                <label id="label-cad-apto" for="cad-morador-apto">Número Apto/Casa</label>
+                <input type="text" id="cad-morador-apto" class="form-control" required placeholder="Ex: 101">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="cad-morador-tel">Telefone / WhatsApp</label>
+              <input type="text" id="cad-morador-tel" class="form-control" required placeholder="(00) 00000-0000">
+            </div>
+            <div class="form-group">
+              <label for="cad-morador-email">E-mail (Opcional)</label>
+              <input type="email" id="cad-morador-email" class="form-control" placeholder="morador@email.com">
+            </div>
+            <button type="submit" class="btn-primary w-100">
+              <i class="fa-solid fa-save"></i> Cadastrar e Gerar ID Único
+            </button>
+          </form>
+
+          <h4 style="margin-top: 15px;"><i class="fa-solid fa-users"></i> Moradores Cadastrados</h4>
+          <div id="adm-lista-moradores">
+            <!-- JS -->
+          </div>
+        </div>
+
+        <div id="adm-sec-mural" class="adm-section" style="display: none;">
+          <h4><i class="fa-solid fa-bullhorn"></i> Publicar Comunicação</h4>
+          <div class="form-group">
+            <label for="admin-aviso-titulo">Título da Comunicação</label>
+            <input type="text" id="admin-aviso-titulo" class="form-control" placeholder="Ex: Manutenção na bomba d'água">
+          </div>
+          <div class="form-group">
+            <label for="admin-aviso-tag">Categoria / Tag</label>
+            <select id="admin-aviso-tag" class="form-control">
+              <option value="Aviso">Aviso Geral</option>
+              <option value="Manutenção">Manutenção</option>
+              <option value="Urgente">Urgente</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="admin-aviso-msg">Mensagem</label>
+            <textarea id="admin-aviso-msg" class="form-control" rows="3" placeholder="Escreva o comunicado..."></textarea>
+          </div>
+          <button id="btn-publicar-aviso" type="button" class="btn-primary w-100">
+            <i class="fa-solid fa-paper-plane"></i> Publicar no Mural
+          </button>
+        </div>
+
+        <div id="adm-sec-espacos" class="adm-section" style="display: none;">
+          <h4><i class="fa-solid fa-plus"></i> Novo Espaço Comum</h4>
+          <div class="form-group">
+            <label for="cad-espaco-nome">Nome do Espaço</label>
+            <input type="text" id="cad-espaco-nome" class="form-control" placeholder="Ex: Quadra de Tênis">
+          </div>
+          <div class="form-group">
+            <label for="cad-espaco-taxa">Taxa de Uso (R$)</label>
+            <input type="number" id="cad-espaco-taxa" class="form-control" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label for="cad-espaco-regras">Regras de Utilização</label>
+            <textarea id="cad-espaco-regras" class="form-control" rows="2" placeholder="Ex: Uso obrigatório de calçado adequado."></textarea>
+          </div>
+          <button id="btn-cadastrar-espaco" type="button" class="btn-primary w-100">
+            <i class="fa-solid fa-check"></i> Cadastrar Espaço
+          </button>
+
+          <h4 style="margin-top: 15px;"><i class="fa-solid fa-list"></i> Espaços Atuais</h4>
+          <div id="adm-lista-espacos">
+            <!-- JS -->
+          </div>
+        </div>
+
+        <div id="adm-sec-baixas" class="adm-section" style="display: none;">
+          <h4><i class="fa-solid fa-receipt"></i> Aprovação e Baixas de Reservas</h4>
+          <div id="adm-lista-reservas">
+            <!-- JS -->
+          </div>
+        </div>
+
+        <div id="adm-sec-chamados" class="adm-section" style="display: none;">
+          <h4><i class="fa-solid fa-wrench"></i> Gestão de Chamados</h4>
+          <div id="adm-lista-chamados">
+            <!-- JS -->
+          </div>
+        </div>
+
+        <div id="adm-sec-encomendas" class="adm-section" style="display: none;">
+          <h4><i class="fa-solid fa-box"></i> Registrar Chegada de Pacote</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="form-group">
+              <label for="adm-enc-bloco-select">Bloco / Torre</label>
+              <select id="adm-enc-bloco-select" class="form-control">
+                <!-- JS -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="adm-enc-apto-input">Número Apto/Casa</label>
+              <input type="text" id="adm-enc-apto-input" class="form-control" placeholder="Ex: 102">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="adm-enc-morador-encontrado">Morador Localizado</label>
+            <input type="text" id="adm-enc-morador-encontrado" class="form-control" readonly placeholder="Informe Bloco e Apto acima..." style="background: #f1f5f9; font-weight: bold;">
+          </div>
+          <div class="form-group">
+            <label for="adm-enc-desc">Descrição do Pacote / Transportadora</label>
+            <input type="text" id="adm-enc-desc" class="form-control" placeholder="Ex: Amazon - Caixa Média">
+          </div>
+          <button id="btn-entrada-encomenda" type="button" class="btn-primary w-100">
+            <i class="fa-solid fa-box-archive"></i> Dar Entrada na Portaria
+          </button>
+
+          <h4 style="margin-top: 15px;"><i class="fa-solid fa-boxes-stacked"></i> Encomendas Pendentes (Dar Baixa)</h4>
+          <div id="adm-lista-encomendas-baixa">
+            <!-- JS -->
+          </div>
+        </div>
+
+        <div id="adm-sec-notificacoes" class="adm-section" style="display: none;">
+          <h4><i class="fa-solid fa-paper-plane"></i> Disparar Notificação Real</h4>
+          <div class="form-group">
+            <label for="adm-notif-destinatario">Selecione o Destinatário</label>
+            <select id="adm-notif-destinatario" class="form-control">
+              <!-- JS -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="adm-notif-msg">Mensagem da Notificação</label>
+            <textarea id="adm-notif-msg" class="form-control" rows="2" placeholder="Ex: Sua encomenda chegou na portaria!"></textarea>
+          </div>
+          <button id="btn-disparar-notificacao-admin" type="button" class="btn-primary w-100">
+            <i class="fa-solid fa-bell"></i> Disparar Notificação
+          </button>
+        </div>
+
+        <div id="adm-sec-regras" class="adm-section" style="display: none;">
+          <h4><i class="fa-solid fa-gavel"></i> Adicionar Regra</h4>
+          <div class="form-group">
+            <input type="text" id="adm-regra-texto" class="form-control" placeholder="Ex: Proibido barulho após as 22h.">
+          </div>
+          <button id="btn-adicionar-regra" type="button" class="btn-primary w-100">
+            <i class="fa-solid fa-plus"></i> Adicionar Regra
+          </button>
+
+          <h4 style="margin-top: 15px;"><i class="fa-solid fa-file-upload"></i> Anexar PDF / Documento</h4>
+          <div class="form-group">
+            <input type="text" id="adm-doc-titulo" class="form-control" placeholder="Título do Documento (Ex: Ata_2026.pdf)">
+          </div>
+          <button id="btn-anexar-doc" type="button" class="btn-primary w-100">
+            <i class="fa-solid fa-upload"></i> Publicar Documento
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- NAVEGAÇÃO INFERIOR -->
+  <nav id="main-nav" class="bottom-nav" style="display: none;">
+    <button id="nav-mural" type="button" class="nav-item active">
+      <i class="fa-solid fa-newspaper"></i>
+      <span>Mural</span>
+    </button>
+    <button id="nav-chamados" type="button" class="nav-item">
+      <i class="fa-solid fa-wrench"></i>
+      <span>Chamados</span>
+    </button>
+    <button id="nav-reservas" type="button" class="nav-item">
+      <i class="fa-solid fa-calendar-days"></i>
+      <span>Reservas</span>
+    </button>
+    <button id="nav-encomendas" type="button" class="nav-item">
+      <i class="fa-solid fa-box-open"></i>
+      <span>Encomendas</span>
+    </button>
+    <button id="nav-regras" type="button" class="nav-item">
+      <i class="fa-solid fa-file-contract"></i>
+      <span>Regras</span>
+    </button>
+    <button id="nav-admin" type="button" class="nav-item" style="display: none;">
+      <i class="fa-solid fa-user-gear"></i>
+      <span>Admin</span>
+    </button>
+  </nav>
+
+  <script src="javaScript.js"></script>
+</body>
+</html>
